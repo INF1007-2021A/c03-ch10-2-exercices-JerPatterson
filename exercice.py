@@ -2,7 +2,7 @@
 # -*- coding: utf-8 -*-
 
 # TODO: Importez vos modules ici
-from sklearn import model_selection, ensemble, linear_model
+from sklearn import model_selection, ensemble, linear_model, metrics
 import matplotlib.pyplot as plt
 import pandas as pd
 
@@ -44,11 +44,10 @@ def predictions_analysis(model: str, predictions: list, targeted_values: list) -
     plt.show()
 
 def mean_squared_error(predictions, targeted_values):
-    pass
+    return metrics.mean_squared_error(targeted_values, predictions)
 
 
-if __name__ == '__main__':
-    # TODO: Appelez vos fonctions ici
+def main():
     df_white_wines = read_csv_file("data/winequality-white.csv")
 
     df_quality_wanted, df_other_data = separate_value_wanted(df_white_wines)
@@ -58,3 +57,7 @@ if __name__ == '__main__':
     
     predictions_analysis('RandomForestRegressor', random_forest_model, test_quality)
     predictions_analysis('LinearRegression', linear_regression_model, test_quality)
+    print([mean_squared_error(test_quality, random_forest_model), mean_squared_error(test_quality, linear_regression_model)])
+
+if __name__ == '__main__':
+    main() 
