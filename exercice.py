@@ -3,8 +3,8 @@
 
 # TODO: Importez vos modules ici
 from sklearn import model_selection, ensemble, linear_model
+import matplotlib.pyplot as plt
 import pandas as pd
-from sklearn.base import RegressorMixin
 
 
 # TODO: Définissez vos fonctions ici
@@ -23,20 +23,28 @@ def separate_data_in_half(df_wanted: pd.DataFrame, df_other: pd.DataFrame) -> tu
     return model_selection.train_test_split(df_wanted, df_other)
 
 
-def train_random_forest(other_values: pd.DataFrame, targeted_values: pd.DataFrame) -> 'ensemble.RandomForestRegressor':
-    return ensemble.RandomForestRegressor().fit(other_values, targeted_values)
-
-
-def evaluate_random_forest(regression: 'ensemble.RandomForestRegressor', test_other_values: pd.DataFrame) -> list:
+def predictions_random_forest(other_values: pd.DataFrame, targeted_values: pd.DataFrame, test_other_values: pd.DataFrame) -> list:
+    regression = ensemble.RandomForestRegressor().fit(other_values, targeted_values)
     return regression.predict(test_other_values)
 
 
-def train_linear_regression(other_values: pd.DataFrame, targeted_values: pd.DataFrame) -> 'linear_model.LinearRegression':
-    return linear_model.LinearRegression().fit(other_values, targeted_values)
-
-
-def evaluate_linear_regression(regression: 'linear_model.LinearRegression', test_other_values: pd.DataFrame) -> list:
+def predictions_linear_regression(other_values: pd.DataFrame, targeted_values: pd.DataFrame, test_other_values: pd.DataFrame) -> list:
+    regression = linear_model.LinearRegression().fit(other_values, targeted_values)
     return regression.predict(test_other_values)
+
+
+def predictions_analysis(model: str, predictions: list, targeted_values: list) -> None:
+    index = [number for number in range(len(predictions))]
+    plt.plot(index, targeted_values, 'b', label = "Targeted values")
+    plt.plot(index, predictions, 'darkorange', label = "Predicted values")
+    plt.xlabel('Number of samples')
+    plt.ylabel('Quality')
+    plt.legend()
+    plt.title(f"{model} predictions analysis")
+    plt.show()
+
+def mean_squared_error(predictions, targeted_values):
+    pass
 
 
 if __name__ == '__main__':
@@ -45,8 +53,8 @@ if __name__ == '__main__':
 
     df_quality_wanted, df_other_data = separate_value_wanted(df_white_wines)
     train_quality, test_quality, train_other, test_other = separate_data_in_half(df_quality_wanted, df_other_data)
-
-    random_forest_model = evaluate_random_forest(train_random_forest(train_other, train_quality), test_other)
-    linear_regression_model = evaluate_linear_regression(train_linear_regression(train_other, train_quality), test_other)
-    print(random_forest_model, len(random_forest_model))
-    print(linear_regression_model, len(linear_regression_model))
+    random_forest_model = predictions_random_forest(train_other, train_quality, test_other)
+    linear_regression_model = predictions_linear_regression(train_other, train_quality, test_other)
+    
+    predictions_analysis('RandomForestRegressor', random_forest_model, test_quality)
+    predictions_analysis('LinearRegression', linear_regression_model, test_quality)
